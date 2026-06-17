@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class TransactionService {
@@ -46,15 +47,25 @@ public class TransactionService {
     }
 
     public void saveData(TransactionDTO transactionDTO) {
+        calculateProductStock(transactionDTO); // kurangi stok dulu
+
         Transaction transaction = new Transaction();
-        TransactionDetail transactionDetail = new TransactionDetail();
+        transaction.setTransactionNumber(transactionDTO.transactionNumber()); // fix #2
         transaction.setCreatedAt(LocalDateTime.now());
+
+        TransactionDetail transactionDetail = new TransactionDetail();
         transactionDetail.setProduct(productRepo.findById(transactionDTO.productId()).orElseThrow(
-                () -> new ResponseStatusException(HttpStatus.NOT_FOUND,"Product not found")
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found")
         ));
         transactionDetail.setQuantity(transactionDTO.quantity());
         transactionDetail.setTotalPrice(calculateTotalPrice(transactionDTO));
+        transactionDetail.setTransaction(transaction); // fix #1
+
         transaction.setDetail(transactionDetail);
         transactionRepo.save(transaction);
+    }
+
+    public List<Transaction> getAllTransactions() {
+        return transactionRepo.findAll();
     }
 }

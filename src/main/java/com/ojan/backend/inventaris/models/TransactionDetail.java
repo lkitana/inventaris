@@ -1,5 +1,6 @@
 package com.ojan.backend.inventaris.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -16,6 +17,7 @@ public class TransactionDetail {
     private int quantity;
     private double totalPrice;
 
+    @JsonIgnore
     @OneToOne
     @JoinColumn(name = "transaction_id", nullable = false)
     private Transaction transaction;
